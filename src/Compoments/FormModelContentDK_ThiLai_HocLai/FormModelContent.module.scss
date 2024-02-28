@@ -4,6 +4,7 @@
     align-items: center;
     justify-content: center;
     margin-bottom: 15px;
+    
     .form{
         position: relative;
         width: 97%;
@@ -16,9 +17,10 @@
         border-top: none;
         border-bottom: none;
         box-shadow: 7px 7px 0px 0px #0B2447;
+        table{
+          padding: 30px 0px;
+        }
         .item{
-            
-
             // title
             h5{
               position: relative;
@@ -53,6 +55,7 @@
           bottom: -20px;
         }
     }
+    
 
 }
 

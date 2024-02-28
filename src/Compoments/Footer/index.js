@@ -11,7 +11,8 @@ const cx = classNames.bind(style);
 function Footer() {
     return ( 
         <div className={cx('wrapper')}>
-            <div className={cx('box')}>
+            <main className={cx('box')}>
+                
                 <div className={cx('item-left')}>
                     <Link to={'https://www.facebook.com/TruongDHSaoDo'} className={cx('btn')} target="_blank">
                             <FontAwesomeIcon icon={faFacebook} className={cx('icon')}/>
@@ -37,7 +38,7 @@ function Footer() {
                         <FontAwesomeIcon icon={faGraduationCap} className={cx('icon')}/>
                     </div>
                 </div>
-            </div>
+            </main>
         </div>
     );
 }

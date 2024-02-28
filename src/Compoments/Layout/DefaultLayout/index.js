@@ -8,7 +8,7 @@ import { useState } from "react";
 const cx = classNames.bind(style);
 
 
-function DefaultLayout({ children }) {
+function DefaultLayout({ children, isHome }) {
   const [expan, setExpan] = useState(false) ;
   // console.log("cha",expan)
   return (
@@ -16,13 +16,13 @@ function DefaultLayout({ children }) {
         {/* ---------------------Menu-------------- */}
       <Menu isExpan={[expan, setExpan]} />
       
-      <div className={cx('container', {'container-expan':expan})}>
+      <div className={cx('container', {'container-expan':expan })}>
         <Header />
 
-        <div className={cx('content')}>
+        <div className={cx(isHome?'content-full':'content', 'genarate-content')}>
             {children}
         </div>
-
+        
         <Footer />
       </div>
 

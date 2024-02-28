@@ -1,3 +1,9 @@
+$mobile-width: 480px; 
+@mixin mobile { 
+    @media (max-width: #{$mobile-width - 1px}) {     
+      @content;   
+   } 
+  } 
 .wrapper{
     
     padding: 0 30px;
@@ -10,16 +16,25 @@
         align-items: center;
         // justify-content: space-between;
         padding: 10px 30px;
+        @include mobile{
+            display: block;
+        }
         .item-left{
             display: flex;
             align-items: center;
+            @include mobile{
+                margin-top: 10px;
+            }
         }
         .item-right{
             margin-left: auto;
+            
             .info{
                 display: flex;
                 align-items: center;
-
+                @include mobile{
+                    margin-top: 20px;
+                }
                 .icon{
                     font-size: 20px;
                     margin-left: 15px;

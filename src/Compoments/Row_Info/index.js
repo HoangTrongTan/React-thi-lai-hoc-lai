@@ -1,44 +1,73 @@
 import Tippy from "@tippyjs/react/headless";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import style from "./RowInfo.module.scss";
 import classNames from "classnames/bind";
 
 const cx = classNames.bind(style);
 
-function RowInfo({ STT, state, checkTable }) {
+function RowInfo({ STT, state, checkTable, LamMoiInput, stateFile }) {
+  const sinhvien =  JSON.parse(localStorage.getItem("userData") ); 
+  const [checkInputs, setCheckInputs] = useState({});
+  const refFile = useRef();
+  const refSpanFile = useRef();
   const [hocKy, setHocKy] = useState(1);
   const [dangKyThi, setDangKyThi] = useState(1);
   const [rowValue, setRowValue] = state;
+  const [fileinputs,setFileInputs] = stateFile;
+
+  const checkInputsWhenBlur = (e, ten) => {
+    if (e.target.value === "") {
+      setCheckInputs((prev) => ({
+        ...prev,
+        [ten]: true,
+      }));
+    } else {
+      setCheckInputs((prev) => ({
+        ...prev,
+        [ten]: false,
+      }));
+    }
+  };
+
   const handleInputTenMon = (e) => {
     const arrNew = rowValue;
     arrNew[STT] = {
-      id: STT,
-      tenMon: e.target.value,
-      emty: false,
-      hocky: hocKy,
-      dangKyThi: dangKyThi,
+      ...arrNew[STT],
+      id_sinh_vien: sinhvien[0].tendangnhap,
+      tenhocphan: e.target.value,
+      ky: hocKy,
+      loai: dangKyThi,
     };
-    console.log(arrNew);
     setRowValue(arrNew);
   };
-  useEffect(() => {
+
+  const setNewArrayWhenRenderComp = (ten, value) => {
     const arrNew = rowValue;
-    arrNew[STT] = { ...arrNew[STT], hocky: hocKy };
+    arrNew[STT] = {
+      ...arrNew[STT],
+      [ten]: value,
+    };
     setRowValue(arrNew);
+  };
+
+  useEffect(() => {
+    setNewArrayWhenRenderComp("ky", hocKy);
   }, [hocKy]);
+
   useEffect(() => {
-    const arrNew = rowValue;
-    arrNew[STT] = { ...arrNew[STT], dangKyThi: dangKyThi };
-    setRowValue(arrNew);
+    setNewArrayWhenRenderComp("loai", dangKyThi);
   }, [dangKyThi]);
+
   const handleInputTinChi = (value) => {
-    const arrNew = rowValue;
-    arrNew[STT] = { ...arrNew[STT], tinchi: value };
-    setRowValue(arrNew);
+    setNewArrayWhenRenderComp("sotin", value);
   };
   const handleInputDiemThiLan1 = (value) => {
     const arrNew = rowValue;
-    arrNew[STT] = { ...arrNew[STT], DiemThiLan: value };
+    if (checkTable === 1) {
+      arrNew[STT] = { ...arrNew[STT], diemdadat: value };
+    } else {
+      arrNew[STT] = { ...arrNew[STT], diemlan1: value };
+    }
     setRowValue(arrNew);
   };
   const handleInputGhiChu = (value) => {
@@ -46,7 +75,32 @@ function RowInfo({ STT, state, checkTable }) {
     arrNew[STT] = { ...arrNew[STT], ghichu: value };
     setRowValue(arrNew);
   };
-  console.log(rowValue);
+  const getYears = () => {
+    const currentyear = new Date().getFullYear();
+    const arryear = [];
+    for (let index = currentyear - 4; index < currentyear + 1; index++) {
+      arryear.push(index);
+    }
+    return arryear;
+  };
+
+  const handleFileInputClick = () => {
+    refFile.current.click();
+  }
+  const handleInputChange = (e) => {
+    console.log(e);
+    if(!e) return;
+    if(e.name.length > 20){
+      const start = e.name.substr(0,7);
+      const end = e.name.substr(e.name.length - 7,e.name.length - 1)
+      refSpanFile.current.innerHTML = start +"..."+end;
+    }else{
+      refSpanFile.current.innerHTML = e.name;
+    }
+    const fileinputs_new = fileinputs;
+    fileinputs_new[STT] = e;
+    setFileInputs(fileinputs_new);
+  }
   return (
     <tr className={cx("wapper")}>
       <td>
@@ -57,14 +111,26 @@ function RowInfo({ STT, state, checkTable }) {
         <div className={cx("item")}>
           <div className={cx("form")}>
             <input
+              value={LamMoiInput && ""}
               onChange={handleInputTenMon}
+              onBlur={(e) => checkInputsWhenBlur(e, "tenhocphan")}
               spellCheck="false"
-              className={cx("input")}
+              className={cx("input", { isrequied: checkInputs.tenhocphan })}
               placeholder="..."
               required=""
               type="text"
             />
-            <span className={cx("input-border")}></span>
+            <span
+              className={cx("input-border")}
+              style={
+                checkInputs.tenhocphan
+                  ? { background: "red", width: "100%" }
+                  : {}
+              }
+            ></span>
+            {checkInputs.tenhocphan && (
+              <span className={cx("requied_span")}>bắt buộc !!</span>
+            )}
           </div>
         </div>
       </td>
@@ -73,14 +139,24 @@ function RowInfo({ STT, state, checkTable }) {
         <div className={cx("item")}>
           <div className={cx("form")}>
             <input
+              value={LamMoiInput && ""}
               onChange={(e) => handleInputTinChi(e.target.value)}
+              onBlur={(e) => checkInputsWhenBlur(e, "tinchi")}
               spellCheck="false"
-              className={cx("input")}
+              className={cx("input", { isrequied: checkInputs.tinchi })}
               placeholder="..."
               required=""
-              type="text"
+              type="number"
             />
-            <span className={cx("input-border")}></span>
+            <span
+              className={cx("input-border")}
+              style={
+                checkInputs.tinchi ? { background: "red", width: "100%" } : {}
+              }
+            ></span>
+            {checkInputs.tinchi && (
+              <span className={cx("requied_span")}>bắt buộc!</span>
+            )}
           </div>
         </div>
       </td>
@@ -103,19 +179,45 @@ function RowInfo({ STT, state, checkTable }) {
           </Tippy>
         </div>
       </td>
+      {/* Năm */}
+      <td>
+        <div className={cx("item")} style={{ paddingLeft: "10px" }}>
+          <select
+          className={cx('nam-hoc')}
+            onChange={(e) => {
+              setNewArrayWhenRenderComp("nam", e.target.value);
+            }}
+          >
+            {getYears().map((ite) => (
+              <option key={ite} value={` ${ite} - ${ite+1} `}>
+                {` ${ite} - ${ite+1} `}
+              </option>
+            ))}
+          </select>
+        </div>
+      </td>
       {/* Điểm thi lần 1 */}
       <td>
         <div className={cx("item")}>
           <div className={cx("form")}>
             <input
               onChange={(e) => handleInputDiemThiLan1(e.target.value)}
+              onBlur={(e) => checkInputsWhenBlur(e, "diem")}
               spellCheck="false"
-              className={cx("input")}
+              className={cx("input", { isrequied: checkInputs.diem })}
               placeholder="..."
               required=""
-              type="text"
+              type="number"
             />
-            <span className={cx("input-border")}></span>
+            <span
+              className={cx("input-border")}
+              style={
+                checkInputs.diem ? { background: "red", width: "100%" } : {}
+              }
+            ></span>
+            {checkInputs.diem && (
+              <span className={cx("requied_span")}>bắt buộc!</span>
+            )}
           </div>
         </div>
       </td>
@@ -127,35 +229,25 @@ function RowInfo({ STT, state, checkTable }) {
             placement="bottom-start"
             render={(attrs) => (
               <div className={cx("choose-for-item")}>
-                <button onClick={() => setDangKyThi(1)}>lại</button>
+                <button onClick={() => setDangKyThi(1)}>Lại</button>
                 <button onClick={() => setDangKyThi(2)}>Cải thiện</button>
               </div>
             )}
           >
             <div className={cx("choose")}>
-              <span>{dangKyThi === 1 ? "lại" : "Cải thiện"}</span>
+              <span>{dangKyThi === 1 ? "Lại" : "Cải thiện"}</span>
             </div>
           </Tippy>
         </div>
       </td>
+
+      
+      {/*  */}
       {/* Đăng kí ở ghép với lớp */}
-      {checkTable === 1 && (
+      {checkTable !== 1 && (
         <td>
-          <div className={cx("item")}>
-            <Tippy
-              interactive
-              placement="bottom-start"
-              render={(attrs) => (
-                <div className={cx("choose-for-item")}>
-                    {/* đang phát triển */}
-                </div>
-              )}
-            >
-              <div className={cx("choose")}>
-                <span>{dangKyThi === 1 ? "Thi lại" : "Thi cải thiện"}</span>
-              </div>
-            </Tippy>
-          </div>
+          <input ref={refFile} type="file" style={{display:"none"}} onChange={(e) => handleInputChange(e.target.files[0])}/>
+          <span ref={refSpanFile} onClick={handleFileInputClick}>Chọn tệp</span>
         </td>
       )}
       {/* ghi chú */}
